@@ -1,7 +1,7 @@
 import React from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useSettings } from '../context/SettingsContext';
-import { Calendar, Clock, MapPin, CheckCircle, ShieldCheck } from 'lucide-react';
+import { Calendar, Clock, MapPin, CheckCircle, ShieldCheck, Briefcase } from 'lucide-react';
 
 export default function TicketCard({ candidate, id = 'printable-ticket' }) {
   const { settings, resolveImageUrl } = useSettings();
@@ -90,6 +90,19 @@ export default function TicketCard({ candidate, id = 'printable-ticket' }) {
             {candidate.name}
           </h4>
         </div>
+
+        {/* Role field — shown only when present */}
+        {candidate.role && (
+          <div className="flex items-center space-x-2">
+            <Briefcase className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
+            <div>
+              <span className="text-[10px] font-semibold uppercase text-gray-400 block">Role</span>
+              <span className="inline-block px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-800 font-semibold text-xs">
+                {candidate.role}
+              </span>
+            </div>
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div className="bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-100">

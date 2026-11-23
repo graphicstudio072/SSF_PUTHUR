@@ -233,79 +233,73 @@ export default function UnitsManagementTab() {
             No units found. Add the sector's 7 units above.
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-gray-600">
-              <thead className="bg-gray-50 text-gray-700 uppercase font-bold text-[10px] tracking-wider border-b border-gray-200">
-                <tr>
-                  <th className="py-3 px-4">#</th>
-                  <th className="py-3 px-4">Unit Name</th>
-                  <th className="py-3 px-4">Code</th>
-                  <th className="py-3 px-4">Created Date</th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-100">
-                {units.map((unit, index) => {
-                  const isEditing = editingId === unit._id;
-                  return (
-                    <tr key={unit._id} className="hover:bg-gray-50/70 transition-colors">
-                      <td className="py-3.5 px-4 font-mono font-medium text-gray-400">
-                        {index + 1}
-                      </td>
-
-                      <td className="py-3.5 px-4">
+          <>
+            {/* ── Mobile card view (< sm) ── */}
+            <div className="sm:hidden divide-y divide-gray-100">
+              {units.map((unit, index) => {
+                const isEditing = editingId === unit._id;
+                return (
+                  <div key={unit._id} className="p-4 space-y-2">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <span className="text-[10px] font-mono text-gray-400">
+                          #{index + 1}
+                        </span>
                         {isEditing ? (
                           <input
                             type="text"
                             value={editName}
                             onChange={(e) => setEditName(e.target.value)}
-                            className="px-2 py-1 border border-emerald-500 rounded-lg text-xs outline-none bg-emerald-50/30"
+                            className="block w-full mt-0.5 px-2 py-1.5 border border-emerald-500 rounded-lg text-sm outline-none bg-emerald-50/30 font-bold"
                             autoFocus
                           />
                         ) : (
-                          <span className="font-bold text-gray-900">{unit.name}</span>
+                          <p className="font-bold text-gray-900 text-sm truncate">
+                            {unit.name}
+                          </p>
                         )}
-                      </td>
 
-                      <td className="py-3.5 px-4 font-mono">
                         {isEditing ? (
                           <input
                             type="text"
                             value={editCode}
                             onChange={(e) => setEditCode(e.target.value)}
-                            placeholder="Code"
-                            className="px-2 py-1 border border-emerald-500 rounded-lg text-xs outline-none w-20 bg-emerald-50/30"
+                            placeholder="Code (optional)"
+                            className="block w-28 mt-1 px-2 py-1 border border-emerald-500 rounded-lg text-xs outline-none bg-emerald-50/30"
                           />
                         ) : (
-                          <span className="inline-block px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-semibold text-[11px]">
+                          <span className="inline-block mt-1 px-2 py-0.5 rounded bg-gray-100 text-gray-600 font-semibold text-[11px] font-mono">
                             {unit.code || '—'}
                           </span>
                         )}
-                      </td>
 
-                      <td className="py-3.5 px-4 text-gray-400">
-                        {unit.createdAt ? new Date(unit.createdAt).toLocaleDateString() : 'Initial Seed'}
-                      </td>
+                        <p className="text-[10px] text-gray-400 mt-1">
+                          {unit.createdAt
+                            ? new Date(unit.createdAt).toLocaleDateString()
+                            : 'Initial Seed'}
+                        </p>
+                      </div>
 
-                      <td className="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+                      {/* Actions */}
+                      <div className="flex items-center space-x-1.5 shrink-0">
                         {isEditing ? (
                           <>
                             <button
                               type="button"
                               onClick={() => handleSaveEdit(unit._id)}
                               disabled={isSavingEdit}
-                              className="p-1.5 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors"
-                              title="Save Changes"
+                              className="p-2 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 touch-manipulation"
+                              title="Save"
                             >
-                              <Check className="w-3.5 h-3.5" />
+                              <Check className="w-4 h-4" />
                             </button>
                             <button
                               type="button"
                               onClick={cancelEdit}
-                              className="p-1.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                              className="p-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 touch-manipulation"
                               title="Cancel"
                             >
-                              <X className="w-3.5 h-3.5" />
+                              <X className="w-4 h-4" />
                             </button>
                           </>
                         ) : (
@@ -313,28 +307,134 @@ export default function UnitsManagementTab() {
                             <button
                               type="button"
                               onClick={() => startEdit(unit)}
-                              className="p-1.5 text-gray-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
-                              title="Edit Unit"
+                              className="p-2 text-gray-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg touch-manipulation"
+                              title="Edit"
                             >
-                              <Pencil className="w-3.5 h-3.5" />
+                              <Pencil className="w-4 h-4" />
                             </button>
                             <button
                               type="button"
                               onClick={() => handleDelete(unit._id, unit.name)}
-                              className="p-1.5 text-gray-400 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
-                              title="Delete Unit"
+                              className="p-2 text-gray-400 hover:text-red-700 hover:bg-red-50 rounded-lg touch-manipulation"
+                              title="Delete"
                             >
-                              <Trash2 className="w-3.5 h-3.5" />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </>
                         )}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* ── Desktop table view (≥ sm) ── */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full text-left text-xs text-gray-600">
+                <thead className="bg-gray-50 text-gray-700 uppercase font-bold text-[10px] tracking-wider border-b border-gray-200">
+                  <tr>
+                    <th className="py-3 px-4">#</th>
+                    <th className="py-3 px-4">Unit Name</th>
+                    <th className="py-3 px-4">Code</th>
+                    <th className="py-3 px-4">Created Date</th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {units.map((unit, index) => {
+                    const isEditing = editingId === unit._id;
+                    return (
+                      <tr key={unit._id} className="hover:bg-gray-50/70 transition-colors">
+                        <td className="py-3.5 px-4 font-mono font-medium text-gray-400">
+                          {index + 1}
+                        </td>
+
+                        <td className="py-3.5 px-4">
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={editName}
+                              onChange={(e) => setEditName(e.target.value)}
+                              className="px-2 py-1 border border-emerald-500 rounded-lg text-xs outline-none bg-emerald-50/30"
+                              autoFocus
+                            />
+                          ) : (
+                            <span className="font-bold text-gray-900">{unit.name}</span>
+                          )}
+                        </td>
+
+                        <td className="py-3.5 px-4 font-mono">
+                          {isEditing ? (
+                            <input
+                              type="text"
+                              value={editCode}
+                              onChange={(e) => setEditCode(e.target.value)}
+                              placeholder="Code"
+                              className="px-2 py-1 border border-emerald-500 rounded-lg text-xs outline-none w-20 bg-emerald-50/30"
+                            />
+                          ) : (
+                            <span className="inline-block px-2 py-0.5 rounded bg-gray-100 text-gray-700 font-semibold text-[11px]">
+                              {unit.code || '—'}
+                            </span>
+                          )}
+                        </td>
+
+                        <td className="py-3.5 px-4 text-gray-400">
+                          {unit.createdAt
+                            ? new Date(unit.createdAt).toLocaleDateString()
+                            : 'Initial Seed'}
+                        </td>
+
+                        <td className="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
+                          {isEditing ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleSaveEdit(unit._id)}
+                                disabled={isSavingEdit}
+                                className="p-1.5 bg-emerald-700 text-white rounded-lg hover:bg-emerald-800 transition-colors"
+                                title="Save Changes"
+                              >
+                                <Check className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={cancelEdit}
+                                className="p-1.5 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition-colors"
+                                title="Cancel"
+                              >
+                                <X className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => startEdit(unit)}
+                                className="p-1.5 text-gray-500 hover:text-emerald-700 hover:bg-emerald-50 rounded-lg transition-colors"
+                                title="Edit Unit"
+                              >
+                                <Pencil className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDelete(unit._id, unit.name)}
+                                className="p-1.5 text-gray-400 hover:text-red-700 hover:bg-red-50 rounded-lg transition-colors"
+                                title="Delete Unit"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            </>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
     </div>

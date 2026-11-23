@@ -73,6 +73,7 @@ export const apiUpdateUnit = (id, body) =>
 export const apiDeleteUnit = (id) => request(`/units/${id}`, { method: 'DELETE' });
 
 // Candidates & Check-In
+export const apiGetRoles = () => request('/candidates/roles');
 export const apiRegisterCandidate = (body) =>
   request('/candidates/register', { method: 'POST', body: JSON.stringify(body) });
 export const apiGetCandidateByTicket = (ticketId) =>
@@ -88,6 +89,8 @@ export const apiCheckInCandidate = (ticketId) =>
   });
 export const apiToggleCandidateAttendance = (id) =>
   request(`/candidates/${id}/toggle-attendance`, { method: 'PATCH' });
+export const apiDeleteCandidate = (id) =>
+  request(`/candidates/${id}`, { method: 'DELETE' });
 export const apiGetAttendanceStats = () => request('/candidates/attendance-stats');
 
 // Admin Auth

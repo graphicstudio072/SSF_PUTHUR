@@ -3,13 +3,13 @@ const Setting = require('../models/Setting');
 const Candidate = require('../models/Candidate');
 
 const DEFAULT_UNITS = [
-  { name: 'Puthur Town', code: 'PT-01' },
-  { name: 'Parladka', code: 'PT-02' },
-  { name: 'Kombam', code: 'PT-03' },
-  { name: 'Mukve', code: 'PT-04' },
-  { name: 'Kemminje', code: 'PT-05' },
-  { name: 'Bannur', code: 'PT-06' },
-  { name: 'Mottethadka', code: 'PT-07' },
+  { name: 'Puthur', code: 'PT-01' },
+  { name: 'Kaniyarkandam', code: 'PT-02' },
+  { name: 'Kulathakkara', code: 'PT-03' },
+  { name: 'Mattumannil', code: 'PT-04' },
+  { name: 'Rayarukandy', code: 'PT-05' },
+  { name: 'Nadammalpoyil', code: 'PT-06' },
+  { name: 'Jaramkandy', code: 'PT-07' },
 ];
 
 const seedDatabase = async () => {

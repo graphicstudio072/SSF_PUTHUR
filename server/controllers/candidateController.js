@@ -1,6 +1,19 @@
 const Candidate = require('../models/Candidate');
 const Unit = require('../models/Unit');
 
+const ROLES = [
+  'President',
+  'General Secretary',
+  'Executive Secretary',
+  'QD',
+  'GD',
+  "Let's Smile",
+  'Wefi',
+  'Smart Core',
+  'Public Relation',
+  'Secretariat Member',
+];
+
 // Generate unique ticket ID format: SSF-PUT-XXXXXX
 const generateTicketId = () => {
   const randomDigits = Math.floor(100000 + Math.random() * 900000);
@@ -35,10 +48,15 @@ const extractTicketId = (raw) => {
   return trimmed.toUpperCase();
 };
 
+// Get list of roles (Public)
+exports.getRoles = (req, res) => {
+  return res.status(200).json({ success: true, roles: ROLES });
+};
+
 // Register a candidate (Public route)
 exports.registerCandidate = async (req, res) => {
   try {
-    const { name, phone, unit } = req.body;
+    const { name, phone, unit, role } = req.body;
 
     if (!name || !name.trim()) {
       return res.status(400).json({ success: false, message: 'Candidate full name is required' });
@@ -58,6 +76,14 @@ exports.registerCandidate = async (req, res) => {
 
     if (!unit || !unit.trim()) {
       return res.status(400).json({ success: false, message: 'Please select your Unit' });
+    }
+
+    if (!role || !role.trim()) {
+      return res.status(400).json({ success: false, message: 'Please select your Role' });
+    }
+
+    if (!ROLES.includes(role.trim())) {
+      return res.status(400).json({ success: false, message: 'Invalid role selected' });
     }
 
     // Check if candidate with this mobile number already registered
@@ -83,6 +109,7 @@ exports.registerCandidate = async (req, res) => {
       name: name.trim(),
       phone: cleanedPhone,
       unit: unit.trim(),
+      role: role.trim(),
       ticketId,
       attended: false,
       checkInTime: null,
@@ -194,13 +221,11 @@ exports.checkInCandidate = async (req, res) => {
 // Get all candidates (Admin protected with search and filtering)
 exports.getAllCandidates = async (req, res) => {
   try {
-    const { unit, attended, search } = req.query;
+    const { unit, attended, search, role } = req.query;
     const filter = {};
 
-    if (unit && unit !== 'all') {
-      filter.unit = unit;
-    }
-
+    if (unit && unit !== 'all') filter.unit = unit;
+    if (role && role !== 'all') filter.role = role;
     if (attended !== undefined && attended !== 'all') {
       filter.attended = attended === 'true';
     }
@@ -211,6 +236,7 @@ exports.getAllCandidates = async (req, res) => {
         { name: { $regex: q, $options: 'i' } },
         { phone: { $regex: q, $options: 'i' } },
         { ticketId: { $regex: q, $options: 'i' } },
+        { role: { $regex: q, $options: 'i' } },
       ];
     }
 
@@ -225,6 +251,32 @@ exports.getAllCandidates = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Failed to fetch candidates',
+      error: error.message,
+    });
+  }
+};
+
+// Delete a candidate permanently (Admin protected)
+exports.deleteCandidate = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const candidate = await Candidate.findById(id);
+    if (!candidate) {
+      return res.status(404).json({ success: false, message: 'Candidate not found' });
+    }
+
+    await Candidate.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      success: true,
+      message: `Candidate "${candidate.name}" (${candidate.ticketId}) has been permanently deleted.`,
+      deletedId: id,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to delete candidate',
       error: error.message,
     });
   }
@@ -305,7 +357,7 @@ exports.getAttendanceStats = async (req, res) => {
   }
 };
 
-// Reset Attendance status (Admin only helper)
+// Toggle Attendance status (Admin only helper)
 exports.toggleCandidateAttendance = async (req, res) => {
   try {
     const { id } = req.params;

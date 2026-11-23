@@ -77,11 +77,11 @@ export default function AdminDashboardPage() {
   }
 
   const tabs = [
-    { id: 'units', label: '7 Units Management', icon: Building2 },
-    { id: 'scanner', label: 'QR Scanner & Check-In', icon: QrCode },
-    { id: 'reports', label: 'Attendance & WhatsApp Reports', icon: BarChart3 },
-    { id: 'candidates', label: 'Candidate Roster', icon: Users },
-    { id: 'settings', label: 'Logo, Theme & Posters', icon: Sliders },
+    { id: 'units', label: '7 Units', fullLabel: '7 Units Management', icon: Building2 },
+    { id: 'scanner', label: 'QR Check-In', fullLabel: 'QR Scanner & Check-In', icon: QrCode },
+    { id: 'reports', label: 'Reports', fullLabel: 'Attendance & WhatsApp Reports', icon: BarChart3 },
+    { id: 'candidates', label: 'Roster', fullLabel: 'Candidate Roster', icon: Users },
+    { id: 'settings', label: 'Settings', fullLabel: 'Logo, Theme & Posters', icon: Sliders },
   ];
 
   return (
@@ -104,8 +104,8 @@ export default function AdminDashboardPage() {
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {/* Top Control Bar with Tab Navigation */}
-        <div className="bg-white rounded-3xl p-2.5 sm:p-3 shadow-soft border border-emerald-100 mb-6 overflow-x-auto">
-          <nav className="flex space-x-1 sm:space-x-2 min-w-max">
+        <div className="bg-white rounded-3xl p-2 sm:p-3 shadow-soft border border-emerald-100 mb-6 overflow-x-auto">
+          <nav className="flex space-x-1 min-w-max">
             {tabs.map((tab) => {
               const Icon = tab.icon;
               const isActive = activeTab === tab.id;
@@ -113,14 +113,15 @@ export default function AdminDashboardPage() {
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-2 px-3.5 py-2.5 rounded-2xl text-xs font-bold transition-all ${
+                  className={`flex items-center space-x-1.5 px-3 py-2.5 rounded-2xl text-xs font-bold transition-all touch-manipulation ${
                     isActive
                       ? 'bg-emerald-800 text-white shadow-md shadow-emerald-900/20'
                       : 'text-gray-600 hover:text-emerald-800 hover:bg-emerald-50/70'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span>{tab.label}</span>
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span className="hidden sm:inline">{tab.fullLabel}</span>
+                  <span className="sm:hidden">{tab.label}</span>
                 </button>
               );
             })}

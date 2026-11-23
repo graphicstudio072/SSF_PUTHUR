@@ -1,5 +1,18 @@
 const mongoose = require('mongoose');
 
+const ROLES = [
+  'President',
+  'General Secretary',
+  'Executive Secretary',
+  'QD',
+  'GD',
+  "Let's Smile",
+  'Wefi',
+  'Smart Core',
+  'Public Relation',
+  'Secretariat Member',
+];
+
 const candidateSchema = new mongoose.Schema(
   {
     name: {
@@ -17,6 +30,16 @@ const candidateSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Unit selection is required'],
       trim: true,
+      index: true,
+    },
+    role: {
+      type: String,
+      required: [true, 'Role selection is required'],
+      trim: true,
+      enum: {
+        values: ROLES,
+        message: 'Please select a valid role',
+      },
       index: true,
     },
     ticketId: {
@@ -40,3 +63,4 @@ const candidateSchema = new mongoose.Schema(
 );
 
 module.exports = mongoose.model('Candidate', candidateSchema);
+module.exports.ROLES = ROLES;
