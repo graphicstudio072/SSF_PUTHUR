@@ -1,0 +1,17 @@
+{
+  "name": "ssf-puthur-sector-fullstack",
+  "version": "1.0.0",
+  "description": "SSF Puthur Sector Event Registration & Check-in Portal (MERN Stack)",
+  "private": true,
+  "scripts": {
+    "install:all": "npm install --prefix server && npm install --prefix client",
+    "build:client": "npm run build --prefix client",
+    "build": "npm install --prefix server && npm install --prefix client && npm run build --prefix client",
+    "start": "node server/server.js",
+    "server": "npm run dev --prefix server",
+    "client": "npm run dev --prefix client"
+  },
+  "keywords": ["mern", "render", "ssf", "puthur"],
+  "author": "SSF Puthur Sector",
+  "license": "MIT"
+}
