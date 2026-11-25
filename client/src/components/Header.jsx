@@ -46,41 +46,41 @@ export default function Header({
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-emerald-100 shadow-sm transition-all">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-18 py-3 gap-3">
+        <div className="flex items-center justify-between py-2.5 sm:py-3 gap-2.5 sm:gap-3 flex-nowrap">
           {/* Left: Hamburger (Admin only) + Logo & Branding */}
-          <div className="flex items-center space-x-3 min-w-0">
+          <div className="flex items-center space-x-2.5 sm:space-x-3 min-w-0 flex-1">
             {isAdmin && onToggleDrawer && (
               <button
                 type="button"
                 onClick={onToggleDrawer}
                 aria-label="Open navigation menu"
-                className="p-2 rounded-xl text-gray-700 hover:text-emerald-800 hover:bg-emerald-50 border border-gray-200 hover:border-emerald-200 transition-colors touch-manipulation flex-shrink-0"
+                className="w-10 h-10 rounded-xl flex items-center justify-center text-gray-700 hover:text-emerald-800 hover:bg-emerald-50 border border-gray-200 hover:border-emerald-200 transition-colors touch-manipulation flex-shrink-0"
               >
                 <Menu className="w-5 h-5" />
               </button>
             )}
 
-            <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-950 flex items-center justify-center text-white shadow-md shadow-emerald-900/20 ring-2 ring-emerald-600/30 overflow-hidden flex-shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-800 to-emerald-950 flex items-center justify-center text-white shadow-md shadow-emerald-900/20 ring-1 ring-emerald-600/30 overflow-hidden flex-shrink-0">
               {settings.logoUrl ? (
                 <img
                   src={resolveImageUrl(settings.logoUrl)}
                   alt="SSF Logo"
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-contain p-0.5"
                 />
               ) : (
-                <div className="flex flex-col items-center justify-center font-black tracking-tighter text-xs">
-                  <span className="text-[14px] text-emerald-300 font-extrabold leading-none">
+                <div className="flex flex-col items-center justify-center font-black tracking-tighter leading-none">
+                  <span className="text-[11px] text-emerald-300 font-extrabold leading-none">
                     SSF
                   </span>
-                  <span className="text-[8px] text-emerald-100 tracking-widest font-semibold uppercase">
+                  <span className="text-[7px] text-emerald-100 tracking-wider font-semibold uppercase mt-0.5">
                     Puthur
                   </span>
                 </div>
               )}
             </div>
 
-            <div className="min-w-0">
-              <div className="flex items-center space-x-2">
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center space-x-2 min-w-0">
                 <h1 className="text-sm sm:text-lg font-bold text-gray-900 leading-tight truncate">
                   {settings.sectorName || 'SSF PUTHUR SECTOR'}
                 </h1>
@@ -90,7 +90,7 @@ export default function Header({
                   </span>
                 )}
               </div>
-              <p className="text-xs text-emerald-800/80 font-medium line-clamp-1">
+              <p className="text-[11px] sm:text-xs text-emerald-800/80 font-medium truncate">
                 {settings.eventSubtitle || 'Sunni Students Federation • Registration & Check-In Portal'}
               </p>
             </div>
@@ -104,7 +104,7 @@ export default function Header({
                 onClick={() => setProfileOpen((prev) => !prev)}
                 aria-label="Admin profile and actions"
                 aria-expanded={profileOpen}
-                className={`w-10 h-10 rounded-full flex items-center justify-center border transition-all shadow-sm touch-manipulation ${
+                className={`w-10 h-10 rounded-xl flex items-center justify-center border transition-all shadow-sm touch-manipulation flex-shrink-0 ${
                   profileOpen
                     ? 'bg-emerald-800 text-white border-emerald-800 ring-4 ring-emerald-100'
                     : 'bg-emerald-50 text-emerald-800 border-emerald-200 hover:bg-emerald-100'
