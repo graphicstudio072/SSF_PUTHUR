@@ -1,28 +1,8 @@
 const multer = require('multer');
-const path = require('path');
-const fs = require('fs');
 
-// Ensure uploads folder exists
-const uploadDir = path.join(__dirname, '..', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Storage configuration
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, uploadDir);
-  },
-  filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname).toLowerCase();
-    const cleanBase = path
-      .basename(file.originalname, ext)
-      .replace(/[^a-zA-Z0-9]/g, '_')
-      .slice(0, 30);
-    cb(null, `${cleanBase}-${uniqueSuffix}${ext}`);
-  },
-});
+// Use memoryStorage so uploaded images are saved persistently as Base64 Data URIs in MongoDB
+// instead of ephemeral local disk storage (which resets on Render/cloud restarts).
+const storage = multer.memoryStorage();
 
 // File filter for images only
 const fileFilter = (req, file, cb) => {
@@ -44,7 +24,7 @@ const fileFilter = (req, file, cb) => {
 
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit per image (safe for MongoDB 16MB doc limit)
   fileFilter,
 });
 

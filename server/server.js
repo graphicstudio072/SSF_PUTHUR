@@ -3,6 +3,7 @@ const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const dotenv = require('dotenv');
+const mongoose = require('mongoose');
 
 // Load environment variables
 dotenv.config();
@@ -24,8 +25,8 @@ app.use(cors({
   credentials: true,
 }));
 
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+app.use(express.json({ limit: '15mb' }));
+app.use(express.urlencoded({ extended: true, limit: '15mb' }));
 
 // Serve static uploads folder for uploaded logos and posters
 const uploadsPath = path.join(__dirname, 'uploads');
@@ -40,11 +41,18 @@ app.use('/api/units', unitRoutes);
 app.use('/api/candidates', candidateRoutes);
 app.use('/api/settings', settingRoutes);
 
-// Health check endpoint
+// Health check endpoint (includes DB status for troubleshooting)
 app.get('/api/health', (req, res) => {
+  const readyState = mongoose.connection.readyState;
+  const states = { 0: 'disconnected', 1: 'connected', 2: 'connecting', 3: 'disconnecting' };
   res.status(200).json({
     status: 'OK',
     server: 'SSF PUTHUR SECTOR Backend API',
+    database: {
+      state: states[readyState] || 'unknown',
+      inMemoryFallback: connectDB.isInMemory ? connectDB.isInMemory() : false,
+      name: mongoose.connection.name || null,
+    },
     timestamp: new Date().toISOString(),
   });
 });

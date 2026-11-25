@@ -92,14 +92,15 @@ exports.updateSettings = async (req, res) => {
   }
 };
 
-// Upload Website Logo (Admin protected)
+// Upload Website Logo (Admin protected - stored persistently in MongoDB as Base64 Data URI)
 exports.uploadLogo = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No logo image file uploaded.' });
     }
 
-    const fileUrl = `/uploads/${req.file.filename}`;
+    const base64 = req.file.buffer.toString('base64');
+    const fileUrl = `data:${req.file.mimetype};base64,${base64}`;
 
     let setting = await Setting.findOne();
     if (!setting) setting = new Setting();
@@ -108,7 +109,7 @@ exports.uploadLogo = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Logo uploaded and updated successfully!',
+      message: 'Logo uploaded and saved persistently!',
       logoUrl: fileUrl,
     });
   } catch (error) {
@@ -120,14 +121,15 @@ exports.uploadLogo = async (req, res) => {
   }
 };
 
-// Upload Event Poster (Admin protected)
+// Upload Event Poster (Admin protected - stored persistently in MongoDB as Base64 Data URI)
 exports.uploadPoster = async (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({ success: false, message: 'No poster image file uploaded.' });
     }
 
-    const fileUrl = `/uploads/${req.file.filename}`;
+    const base64 = req.file.buffer.toString('base64');
+    const fileUrl = `data:${req.file.mimetype};base64,${base64}`;
 
     let setting = await Setting.findOne();
     if (!setting) setting = new Setting();
@@ -136,7 +138,7 @@ exports.uploadPoster = async (req, res) => {
 
     return res.status(200).json({
       success: true,
-      message: 'Event Poster uploaded and updated successfully!',
+      message: 'Event Poster uploaded and saved persistently!',
       posterUrl: fileUrl,
     });
   } catch (error) {
