@@ -348,13 +348,13 @@ export default function SettingsTab() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-4 pt-2">
-            <div className="w-28 h-20 rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 overflow-hidden relative flex-shrink-0">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 pt-2">
+            <div className="w-full sm:w-44 min-h-[96px] rounded-2xl border-2 border-dashed border-gray-300 flex items-center justify-center bg-gray-50 p-1.5 overflow-hidden relative flex-shrink-0">
               {settings.posterUrl ? (
                 <img
                   src={resolveImageUrl(settings.posterUrl)}
                   alt="Poster Preview"
-                  className="w-full h-full object-cover"
+                  className="w-auto h-auto max-w-full max-h-44 object-contain rounded-xl"
                 />
               ) : (
                 <span className="text-[10px] text-gray-400 text-center px-2">No Poster</span>

@@ -21,6 +21,17 @@ export default function TicketCard({ candidate, id = 'printable-ticket' }) {
       id={id}
       className="w-full max-w-md mx-auto bg-white rounded-3xl overflow-hidden shadow-2xl border border-emerald-100 relative text-gray-800 transition-all"
     >
+      {/* Event Poster at the very top of the ticket (full uncropped aspect ratio) */}
+      {settings.posterUrl && (
+        <div className="w-full bg-emerald-950 border-b border-emerald-800/40 overflow-hidden">
+          <img
+            src={resolveImageUrl(settings.posterUrl)}
+            alt="Event Poster"
+            className="w-full h-auto max-h-64 object-contain mx-auto block"
+          />
+        </div>
+      )}
+
       {/* Top Emerald Header */}
       <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-900 text-white p-5 sm:p-6 relative overflow-hidden">
         {/* Subtle decorative circles */}
@@ -67,17 +78,6 @@ export default function TicketCard({ candidate, id = 'printable-ticket' }) {
         <p className="text-xs text-emerald-200/90 mt-1 line-clamp-1 italic">
           "{settings.eventTheme || 'Moral Revolution for Social Reformation'}"
         </p>
-
-        {/* Optional Event Poster Preview thumbnail if exists */}
-        {settings.posterUrl && (
-          <div className="mt-3 w-full h-24 rounded-lg overflow-hidden border border-white/20 bg-emerald-950/40">
-            <img
-              src={resolveImageUrl(settings.posterUrl)}
-              alt="Event Poster"
-              className="w-full h-full object-cover object-top"
-            />
-          </div>
-        )}
       </div>
 
       {/* Candidate Profile Details */}

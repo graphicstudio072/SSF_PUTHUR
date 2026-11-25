@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Header from '../components/Header';
 import Footer from '../components/Footer';
 import TicketModal from '../components/TicketModal';
@@ -23,6 +23,7 @@ import {
   Loader2,
   ShieldCheck,
   ChevronRight,
+  ArrowDown,
   Check,
 } from 'lucide-react';
 
@@ -62,6 +63,12 @@ export default function RegisterPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
+
+  const registrationFormRef = useRef(null);
+
+  const scrollToRegistrationForm = () => {
+    registrationFormRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
 
   useEffect(() => {
     const loadUnits = async () => {
@@ -211,11 +218,47 @@ export default function RegisterPage() {
         </section>
 
         {/* Content */}
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 mt-6">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 mt-6 space-y-6">
+          {/* Top-Right Register Now Button */}
+          <div className="flex justify-end">
+            <button
+              type="button"
+              onClick={scrollToRegistrationForm}
+              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-900/20 active:scale-[0.98] transition-all touch-manipulation"
+            >
+              <span>Register Now</span>
+              <ArrowDown className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Layered Accented Event Poster Card (directly below Event Details, above Delegate Registration) */}
+          {settings.posterUrl && (
+            <div className="relative">
+              {/* Outer layered emerald accent card */}
+              <div className="absolute -inset-1.5 sm:-inset-2 bg-gradient-to-br from-emerald-800/15 via-emerald-500/10 to-emerald-900/15 rounded-[2rem] -rotate-1 pointer-events-none"></div>
+              <div className="relative bg-white rounded-3xl p-3 sm:p-4 shadow-elevated border border-emerald-100">
+                <div className="rounded-2xl overflow-hidden bg-emerald-50/40 border border-emerald-100/70">
+                  <img
+                    src={resolveImageUrl(settings.posterUrl)}
+                    alt="Event Poster"
+                    className="w-full h-auto max-h-[560px] object-contain mx-auto block"
+                  />
+                </div>
+                <div className="mt-2.5 px-1 flex items-center justify-between text-[11px] text-emerald-900/80 font-semibold">
+                  <span className="uppercase tracking-wider">Official Event Poster</span>
+                  <span className="text-emerald-700">{settings.sectorName || 'SSF PUTHUR SECTOR'}</span>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
             {/* Registration Form */}
-            <div className="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-8 shadow-elevated border border-emerald-100">
+            <div
+              ref={registrationFormRef}
+              className="lg:col-span-7 bg-white rounded-3xl p-5 sm:p-8 shadow-elevated border border-emerald-100 scroll-mt-24"
+            >
               <div className="flex items-center justify-between pb-4 border-b border-gray-100">
                 <div>
                   <span className="text-[11px] font-bold uppercase tracking-wider text-emerald-700 block">
@@ -364,23 +407,6 @@ export default function RegisterPage() {
 
             {/* Right Column */}
             <div className="lg:col-span-5 space-y-5">
-              {settings.posterUrl && (
-                <div className="bg-white rounded-3xl p-3 shadow-soft border border-emerald-100 overflow-hidden">
-                  <div className="rounded-2xl overflow-hidden aspect-[4/3] bg-emerald-950/20 relative group">
-                    <img
-                      src={resolveImageUrl(settings.posterUrl)}
-                      alt="Event Poster"
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-4">
-                      <span className="text-white font-semibold text-xs tracking-wide">
-                        Official Event Announcement
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
               {/* Quick Ticket Lookup */}
               <div className="bg-white rounded-3xl p-5 shadow-soft border border-emerald-100">
                 <div className="flex items-center space-x-2.5 mb-3">
