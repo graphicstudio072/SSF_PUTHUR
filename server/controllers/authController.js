@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const Setting = require('../models/Setting');
 
 // Default fallback PIN
@@ -11,6 +12,13 @@ exports.verifyPin = async (req, res) => {
 
     if (!pin) {
       return res.status(400).json({ success: false, message: 'PIN is required' });
+    }
+
+    if (mongoose.connection.readyState !== 1) {
+      return res.status(503).json({
+        success: false,
+        message: 'Database not connected. Check MONGODB_URI and MongoDB Atlas Network Access (0.0.0.0/0).',
+      });
     }
 
     // Retrieve setting from database
@@ -38,9 +46,10 @@ exports.verifyPin = async (req, res) => {
       expiresIn: '24h',
     });
   } catch (error) {
+    console.error('Error verifying PIN:', error);
     return res.status(500).json({
       success: false,
-      message: 'Server error verifying PIN',
+      message: `Server error verifying PIN: ${error.message}`,
       error: error.message,
     });
   }
