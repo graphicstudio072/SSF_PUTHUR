@@ -7,6 +7,7 @@ import QrCheckInTab from '../tabs/QrCheckInTab';
 import AttendanceReportTab from '../tabs/AttendanceReportTab';
 import CandidatesListTab from '../tabs/CandidatesListTab';
 import SettingsTab from '../tabs/SettingsTab';
+import { useSettings } from '../context/SettingsContext';
 import {
   apiVerifySession,
   getAdminToken,
@@ -18,16 +19,17 @@ import {
   BarChart3,
   Users,
   Sliders,
-  Copy,
   Check,
-  Lock,
-  ExternalLink,
+  X,
+  ChevronRight,
 } from 'lucide-react';
 
 export default function AdminDashboardPage() {
+  const { settings, resolveImageUrl } = useSettings();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [checkingAuth, setCheckingAuth] = useState(true);
   const [activeTab, setActiveTab] = useState('units');
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
 
   // Check existing token on mount
@@ -59,6 +61,16 @@ export default function AdminDashboardPage() {
     checkSession();
   }, []);
 
+  // Close drawer on Escape key
+  useEffect(() => {
+    if (!drawerOpen) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') setDrawerOpen(false);
+    };
+    document.addEventListener('keydown', handleKeyDown);
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [drawerOpen]);
+
   const handleCopyAdminLink = () => {
     const adminUrl = window.location.origin + '/admin';
     navigator.clipboard.writeText(adminUrl);
@@ -68,6 +80,7 @@ export default function AdminDashboardPage() {
 
   const handleLogout = () => {
     clearAdminToken();
+    setDrawerOpen(false);
     setIsAuthenticated(false);
   };
 
@@ -76,23 +89,161 @@ export default function AdminDashboardPage() {
     return <PinModal onAuthenticated={() => setIsAuthenticated(true)} />;
   }
 
-  const tabs = [
-    { id: 'units', label: '7 Units', fullLabel: '7 Units Management', icon: Building2 },
-    { id: 'scanner', label: 'QR Check-In', fullLabel: 'QR Scanner & Check-In', icon: QrCode },
-    { id: 'reports', label: 'Reports', fullLabel: 'Attendance & WhatsApp Reports', icon: BarChart3 },
-    { id: 'candidates', label: 'Roster', fullLabel: 'Candidate Roster', icon: Users },
-    { id: 'settings', label: 'Settings', fullLabel: 'Logo, Theme & Posters', icon: Sliders },
+  const navItems = [
+    {
+      id: 'units',
+      label: '7 Units Management',
+      subtitle: 'Add, edit & remove sector units',
+      icon: Building2,
+    },
+    {
+      id: 'scanner',
+      label: 'QR Scanner & Check-In',
+      subtitle: 'Gate verification & manual check-in',
+      icon: QrCode,
+    },
+    {
+      id: 'reports',
+      label: 'Attendance & WhatsApp Report',
+      subtitle: 'Unit turnout & WhatsApp share',
+      icon: BarChart3,
+    },
+    {
+      id: 'candidates',
+      label: 'Candidate Roster',
+      subtitle: 'Registered delegates & export',
+      icon: Users,
+    },
+    {
+      id: 'settings',
+      label: 'Logo, Theme & Posters',
+      subtitle: 'Branding, event details & PIN',
+      icon: Sliders,
+    },
   ];
+
+  const handleSelectTab = (tabId) => {
+    setActiveTab(tabId);
+    setDrawerOpen(false);
+  };
 
   return (
     <div className="min-h-screen flex flex-col bg-[#F8FAF9] text-gray-900">
-      {/* Admin Header with Copy Admin Link & Lock Actions */}
+      {/* Top Header with Hamburger (left) and Profile Popover (right) */}
       <Header
         isAdmin={true}
+        onToggleDrawer={() => setDrawerOpen((prev) => !prev)}
         onCopyAdminLink={handleCopyAdminLink}
         onLogout={handleLogout}
         copySuccess={copySuccess}
       />
+
+      {/* Slide-out Collapsible Navigation Drawer */}
+      <div
+        className={`fixed inset-0 z-50 transition-opacity duration-200 ${
+          drawerOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+        aria-hidden={!drawerOpen}
+      >
+        {/* Backdrop */}
+        <div
+          className="fixed inset-0 bg-emerald-950/40 backdrop-blur-xs"
+          onClick={() => setDrawerOpen(false)}
+        />
+
+        {/* Drawer Panel */}
+        <aside
+          className={`fixed top-0 left-0 bottom-0 w-72 sm:w-80 max-w-[85vw] bg-white shadow-2xl border-r border-emerald-100 flex flex-col transform transition-transform duration-250 ease-out ${
+            drawerOpen ? 'translate-x-0' : '-translate-x-full'
+          }`}
+        >
+          {/* Drawer Header */}
+          <div className="px-5 py-4 border-b border-emerald-100 flex items-center justify-between bg-gradient-to-r from-emerald-900 to-emerald-800 text-white">
+            <div className="flex items-center space-x-3 min-w-0">
+              <div className="w-9 h-9 rounded-xl bg-white/15 border border-white/20 flex items-center justify-center overflow-hidden flex-shrink-0">
+                {settings.logoUrl ? (
+                  <img
+                    src={resolveImageUrl(settings.logoUrl)}
+                    alt="SSF Logo"
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <span className="text-xs font-extrabold text-emerald-200">SSF</span>
+                )}
+              </div>
+              <div className="min-w-0">
+                <p className="text-xs font-bold tracking-wide truncate">
+                  {settings.sectorName || 'SSF PUTHUR SECTOR'}
+                </p>
+                <p className="text-[10px] text-emerald-200 uppercase tracking-widest font-semibold">
+                  Admin Navigation
+                </p>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setDrawerOpen(false)}
+              aria-label="Close navigation menu"
+              className="p-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-colors touch-manipulation"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
+          {/* Drawer Navigation Items */}
+          <nav className="flex-1 overflow-y-auto p-3 space-y-1.5">
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleSelectTab(item.id)}
+                  className={`w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-left transition-all touch-manipulation ${
+                    isActive
+                      ? 'bg-emerald-800 text-white shadow-md shadow-emerald-900/20'
+                      : 'text-gray-700 hover:bg-emerald-50/80 hover:text-emerald-900'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <div
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0 ${
+                        isActive
+                          ? 'bg-white/15 text-white'
+                          : 'bg-emerald-50 text-emerald-700'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" />
+                    </div>
+                    <div className="min-w-0">
+                      <span className="text-xs font-bold block truncate">{item.label}</span>
+                      <span
+                        className={`text-[10px] block truncate ${
+                          isActive ? 'text-emerald-100' : 'text-gray-400'
+                        }`}
+                      >
+                        {item.subtitle}
+                      </span>
+                    </div>
+                  </div>
+                  <ChevronRight
+                    className={`w-4 h-4 flex-shrink-0 ${
+                      isActive ? 'text-emerald-200' : 'text-gray-300'
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </nav>
+
+          {/* Drawer Footer */}
+          <div className="px-5 py-3 border-t border-gray-100 text-[10px] text-gray-400 text-center">
+            SSF Puthur Sector • Admin Portal
+          </div>
+        </aside>
+      </div>
 
       {/* Copy link floating feedback toast */}
       {copySuccess && (
@@ -103,33 +254,8 @@ export default function AdminDashboardPage() {
       )}
 
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {/* Top Control Bar with Tab Navigation */}
-        <div className="bg-white rounded-3xl p-2 sm:p-3 shadow-soft border border-emerald-100 mb-6 overflow-x-auto">
-          <nav className="flex space-x-1 min-w-max">
-            {tabs.map((tab) => {
-              const Icon = tab.icon;
-              const isActive = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center space-x-1.5 px-3 py-2.5 rounded-2xl text-xs font-bold transition-all touch-manipulation ${
-                    isActive
-                      ? 'bg-emerald-800 text-white shadow-md shadow-emerald-900/20'
-                      : 'text-gray-600 hover:text-emerald-800 hover:bg-emerald-50/70'
-                  }`}
-                >
-                  <Icon className="w-4 h-4 shrink-0" />
-                  <span className="hidden sm:inline">{tab.fullLabel}</span>
-                  <span className="sm:hidden">{tab.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </div>
-
-        {/* Tab Content Display */}
-        <div className="bg-white rounded-3xl p-6 sm:p-8 shadow-soft border border-emerald-100 min-h-[500px]">
+        {/* Active Section Content Display */}
+        <div className="bg-white rounded-3xl p-5 sm:p-8 shadow-soft border border-emerald-100 min-h-[500px]">
           {activeTab === 'units' && <UnitsManagementTab />}
           {activeTab === 'scanner' && <QrCheckInTab />}
           {activeTab === 'reports' && <AttendanceReportTab />}
