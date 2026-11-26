@@ -7,6 +7,7 @@ import QrCheckInTab from '../tabs/QrCheckInTab';
 import AttendanceReportTab from '../tabs/AttendanceReportTab';
 import CandidatesListTab from '../tabs/CandidatesListTab';
 import SettingsTab from '../tabs/SettingsTab';
+import TicketTemplateTab from '../tabs/TicketTemplateTab';
 import { useSettings } from '../context/SettingsContext';
 import {
   apiVerifySession,
@@ -19,6 +20,7 @@ import {
   BarChart3,
   Users,
   Sliders,
+  LayoutTemplate,
   Check,
   X,
   ChevronRight,
@@ -119,6 +121,12 @@ export default function AdminDashboardPage() {
       label: 'Logo, Theme & Posters',
       subtitle: 'Branding, event details & PIN',
       icon: Sliders,
+    },
+    {
+      id: 'ticket-template',
+      label: 'Ticket Template Settings',
+      subtitle: 'Custom template & field placement',
+      icon: LayoutTemplate,
     },
   ];
 
@@ -261,6 +269,7 @@ export default function AdminDashboardPage() {
           {activeTab === 'reports' && <AttendanceReportTab />}
           {activeTab === 'candidates' && <CandidatesListTab />}
           {activeTab === 'settings' && <SettingsTab />}
+          {activeTab === 'ticket-template' && <TicketTemplateTab />}
         </div>
       </main>
 

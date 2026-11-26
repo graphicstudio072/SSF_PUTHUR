@@ -189,7 +189,10 @@ export default function RegisterPage() {
               <span>{settings.sectorName || 'SSF PUTHUR SECTOR'}</span>
             </div>
 
-            <h1 className="text-xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 tracking-tight leading-tight">
+            <h1
+              style={{ color: settings.headingColor || '#111827' }}
+              className="text-2xl sm:text-5xl md:text-6xl font-black tracking-tight leading-[1.1] px-1"
+            >
               {settings.eventName || 'SSF PUTHUR SECTOR SAHITYOTSAV & MEET 2026'}
             </h1>
 
@@ -197,40 +200,47 @@ export default function RegisterPage() {
               "{settings.eventTheme || 'Moral Revolution for Social Reformation'}"
             </p>
 
-            <div className="mt-6 grid grid-cols-1 sm:grid-cols-3 gap-2.5 max-w-2xl mx-auto text-left text-xs sm:text-sm">
+            {/* 4-Block Grid (2 rows x 2 columns): Date, Time, Venue, Register Now */}
+            <div className="mt-7 grid grid-cols-2 gap-2.5 sm:gap-3.5 max-w-2xl mx-auto text-left text-xs sm:text-sm items-stretch">
               {[
                 { icon: Calendar, label: 'Date', value: settings.eventDate || '15 Dec 2026' },
                 { icon: Clock, label: 'Time', value: settings.eventTime || '09:00 AM - 05:00 PM' },
                 { icon: MapPin, label: 'Venue', value: (settings.venue || 'Town Hall, Puthur').split(',')[0] },
               ].map(({ icon: Icon, label, value }) => (
-                <div key={label} className="bg-white/90 backdrop-blur-sm p-3.5 rounded-2xl border border-emerald-100 shadow-soft flex items-center space-x-3">
-                  <div className="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0">
-                    <Icon className="w-5 h-5" />
+                <div key={label} className="bg-white/95 backdrop-blur-sm p-3 sm:p-4 rounded-2xl border border-emerald-100 shadow-soft flex items-center space-x-2.5 sm:space-x-3 h-full min-w-0">
+                  <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center flex-shrink-0">
+                    <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
                   </div>
-                  <div className="min-w-0">
+                  <div className="min-w-0 flex-1">
                     <span className="text-[10px] uppercase font-bold text-gray-400 block">{label}</span>
                     <span className="font-semibold text-gray-800 truncate block">{value}</span>
                   </div>
                 </div>
               ))}
+
+              <button
+                type="button"
+                onClick={scrollToRegistrationForm}
+                className="p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white shadow-md shadow-emerald-900/20 flex items-center justify-between space-x-2 h-full active:scale-[0.98] transition-all touch-manipulation text-left"
+              >
+                <div className="min-w-0">
+                  <span className="text-[10px] uppercase font-bold text-emerald-200 block">
+                    Delegate Entry
+                  </span>
+                  <span className="font-extrabold text-xs sm:text-base block truncate">
+                    Register Now
+                  </span>
+                </div>
+                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-white/15 flex items-center justify-center flex-shrink-0">
+                  <ArrowDown className="w-4 h-4 sm:w-5 sm:h-5" />
+                </div>
+              </button>
             </div>
           </div>
         </section>
 
         {/* Content */}
         <div className="max-w-4xl mx-auto px-4 sm:px-6 mt-6 space-y-6">
-          {/* Top-Right Register Now Button */}
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={scrollToRegistrationForm}
-              className="inline-flex items-center space-x-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-800 to-emerald-700 hover:from-emerald-900 hover:to-emerald-800 text-white text-xs sm:text-sm font-bold shadow-md shadow-emerald-900/20 active:scale-[0.98] transition-all touch-manipulation"
-            >
-              <span>Register Now</span>
-              <ArrowDown className="w-4 h-4" />
-            </button>
-          </div>
-
           {/* Layered Accented Event Poster Card (directly below Event Details, above Delegate Registration) */}
           {settings.posterUrl && (
             <div className="relative">

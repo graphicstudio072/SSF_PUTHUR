@@ -50,6 +50,46 @@ const settingSchema = new mongoose.Schema(
       default: 'white-green',
       enum: ['white-green', 'emerald', 'forest', 'teal'],
     },
+    headingColor: {
+      type: String,
+      default: '#111827',
+      trim: true,
+    },
+    ticketTemplateUrl: {
+      type: String,
+      default: '',
+    },
+    ticketTemplateConfig: {
+      qr: {
+        x: { type: Number, default: 74 },
+        y: { type: Number, default: 58 },
+        size: { type: Number, default: 22 }, // width % of template
+      },
+      name: {
+        x: { type: Number, default: 8 },
+        y: { type: Number, default: 42 },
+        fontSize: { type: Number, default: 28 },
+        color: { type: String, default: '#111827' },
+        align: { type: String, default: 'left', enum: ['left', 'center', 'right'] },
+        fontWeight: { type: String, default: '700' },
+      },
+      ticketId: {
+        x: { type: Number, default: 8 },
+        y: { type: Number, default: 54 },
+        fontSize: { type: Number, default: 20 },
+        color: { type: String, default: '#0F5132' },
+        align: { type: String, default: 'left', enum: ['left', 'center', 'right'] },
+        fontWeight: { type: String, default: '700' },
+      },
+      unit: {
+        x: { type: Number, default: 8 },
+        y: { type: Number, default: 65 },
+        fontSize: { type: Number, default: 20 },
+        color: { type: String, default: '#374151' },
+        align: { type: String, default: 'left', enum: ['left', 'center', 'right'] },
+        fontWeight: { type: String, default: '600' },
+      },
+    },
     adminPin: {
       type: String,
       default: '7860',

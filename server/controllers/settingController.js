@@ -1,5 +1,12 @@
 const Setting = require('../models/Setting');
 
+const DEFAULT_TICKET_TEMPLATE_CONFIG = {
+  qr: { x: 74, y: 58, size: 22 },
+  name: { x: 8, y: 42, fontSize: 28, color: '#111827', align: 'left', fontWeight: '700' },
+  ticketId: { x: 8, y: 54, fontSize: 20, color: '#0F5132', align: 'left', fontWeight: '700' },
+  unit: { x: 8, y: 65, fontSize: 20, color: '#374151', align: 'left', fontWeight: '600' },
+};
+
 // Get public website & event settings (strips adminPin)
 exports.getSettings = async (req, res) => {
   try {
@@ -22,6 +29,9 @@ exports.getSettings = async (req, res) => {
       logoUrl: setting.logoUrl,
       posterUrl: setting.posterUrl,
       theme: setting.theme || 'white-green',
+      headingColor: setting.headingColor || '#111827',
+      ticketTemplateUrl: setting.ticketTemplateUrl || '',
+      ticketTemplateConfig: setting.ticketTemplateConfig || DEFAULT_TICKET_TEMPLATE_CONFIG,
       contactPhone: setting.contactPhone,
       contactEmail: setting.contactEmail,
       updatedAt: setting.updatedAt,
@@ -57,6 +67,9 @@ exports.updateSettings = async (req, res) => {
       venue,
       sectorName,
       theme,
+      headingColor,
+      ticketTemplateUrl,
+      ticketTemplateConfig,
       contactPhone,
       contactEmail,
       logoUrl,
@@ -71,6 +84,16 @@ exports.updateSettings = async (req, res) => {
     if (venue !== undefined) setting.venue = venue.trim();
     if (sectorName !== undefined) setting.sectorName = sectorName.trim();
     if (theme !== undefined) setting.theme = theme;
+    if (headingColor !== undefined) setting.headingColor = headingColor.trim() || '#111827';
+    if (ticketTemplateUrl !== undefined) setting.ticketTemplateUrl = ticketTemplateUrl.trim();
+    if (ticketTemplateConfig !== undefined) {
+      setting.ticketTemplateConfig = {
+        qr: { ...DEFAULT_TICKET_TEMPLATE_CONFIG.qr, ...(ticketTemplateConfig.qr || {}) },
+        name: { ...DEFAULT_TICKET_TEMPLATE_CONFIG.name, ...(ticketTemplateConfig.name || {}) },
+        ticketId: { ...DEFAULT_TICKET_TEMPLATE_CONFIG.ticketId, ...(ticketTemplateConfig.ticketId || {}) },
+        unit: { ...DEFAULT_TICKET_TEMPLATE_CONFIG.unit, ...(ticketTemplateConfig.unit || {}) },
+      };
+    }
     if (contactPhone !== undefined) setting.contactPhone = contactPhone.trim();
     if (contactEmail !== undefined) setting.contactEmail = contactEmail.trim();
     if (logoUrl !== undefined) setting.logoUrl = logoUrl.trim();
@@ -145,6 +168,35 @@ exports.uploadPoster = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: 'Failed to upload poster image',
+      error: error.message,
+    });
+  }
+};
+
+// Upload Custom Ticket Template Background (Admin protected - stored persistently in MongoDB)
+exports.uploadTicketTemplate = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'No ticket template image uploaded.' });
+    }
+
+    const base64 = req.file.buffer.toString('base64');
+    const fileUrl = `data:${req.file.mimetype};base64,${base64}`;
+
+    let setting = await Setting.findOne();
+    if (!setting) setting = new Setting();
+    setting.ticketTemplateUrl = fileUrl;
+    await setting.save();
+
+    return res.status(200).json({
+      success: true,
+      message: 'Ticket template uploaded and saved persistently!',
+      ticketTemplateUrl: fileUrl,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: 'Failed to upload ticket template',
       error: error.message,
     });
   }

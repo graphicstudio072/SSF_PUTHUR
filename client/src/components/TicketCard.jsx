@@ -1,14 +1,42 @@
-import React from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { useSettings } from '../context/SettingsContext';
-import { Calendar, Clock, MapPin, CheckCircle, ShieldCheck, Briefcase } from 'lucide-react';
+import { AlertTriangle } from 'lucide-react';
+
+const DEFAULT_CONFIG = {
+  qr: { x: 74, y: 58, size: 22 },
+  name: { x: 8, y: 42, fontSize: 28, color: '#111827', align: 'left', fontWeight: '700' },
+  ticketId: { x: 8, y: 54, fontSize: 20, color: '#0F5132', align: 'left', fontWeight: '700' },
+  unit: { x: 8, y: 65, fontSize: 20, color: '#374151', align: 'left', fontWeight: '600' },
+};
+
+const getTransform = (align) => {
+  if (align === 'center') return 'translate(-50%, -50%)';
+  if (align === 'right') return 'translate(-100%, -50%)';
+  return 'translate(0%, -50%)';
+};
 
 export default function TicketCard({ candidate, id = 'printable-ticket' }) {
   const { settings, resolveImageUrl } = useSettings();
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(440);
+
+  useEffect(() => {
+    if (!containerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.contentRect.width > 0) {
+          setContainerWidth(entry.contentRect.width);
+        }
+      }
+    });
+    observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [settings.ticketTemplateUrl]);
 
   if (!candidate) return null;
 
-  // Payload encoded in the QR code (JSON string with ticketId)
+  // Payload encoded in the QR code (preserves existing verification logic)
   const qrPayload = JSON.stringify({
     ticketId: candidate.ticketId,
     name: candidate.name,
@@ -16,168 +44,153 @@ export default function TicketCard({ candidate, id = 'printable-ticket' }) {
     phone: candidate.phone,
   });
 
+  const cfg = {
+    qr: { ...DEFAULT_CONFIG.qr, ...(settings.ticketTemplateConfig?.qr || {}) },
+    name: { ...DEFAULT_CONFIG.name, ...(settings.ticketTemplateConfig?.name || {}) },
+    ticketId: { ...DEFAULT_CONFIG.ticketId, ...(settings.ticketTemplateConfig?.ticketId || {}) },
+    unit: { ...DEFAULT_CONFIG.unit, ...(settings.ticketTemplateConfig?.unit || {}) },
+  };
+
+  // Fallback when no custom template has been uploaded by the Admin yet
+  if (!settings.ticketTemplateUrl) {
+    return (
+      <div
+        id={id}
+        className="w-full max-w-md mx-auto bg-white rounded-3xl p-6 shadow-xl border border-emerald-100 text-gray-900 space-y-5"
+      >
+        <div className="flex items-start space-x-2.5 p-3 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs">
+          <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+          <span>
+            No custom ticket template has been uploaded yet. Please configure one in Admin → Ticket Template Settings.
+          </span>
+        </div>
+
+        <div className="flex items-center justify-between gap-4">
+          <div className="space-y-2 min-w-0 flex-1">
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                Name
+              </span>
+              <p className="text-lg font-extrabold text-gray-900 truncate">{candidate.name}</p>
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                Ticket Number
+              </span>
+              <p className="text-sm font-mono font-bold text-emerald-800">{candidate.ticketId}</p>
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
+                Unit
+              </span>
+              <p className="text-sm font-semibold text-gray-700">{candidate.unit}</p>
+            </div>
+          </div>
+
+          <div className="p-2 bg-white rounded-2xl border border-emerald-100 shadow-sm flex-shrink-0">
+            <QRCodeSVG
+              value={qrPayload}
+              size={104}
+              level="H"
+              includeMargin={false}
+              fgColor="#0F5132"
+            />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  const scale = containerWidth / 800;
+  const qrSizePx = Math.max(24, (cfg.qr.size / 100) * containerWidth);
+
   return (
     <div
       id={id}
-      className="w-full max-w-md mx-auto bg-white rounded-3xl overflow-hidden shadow-2xl border border-emerald-100 relative text-gray-800 transition-all"
+      ref={containerRef}
+      className="relative w-full max-w-lg mx-auto overflow-hidden rounded-2xl shadow-2xl bg-white select-none"
     >
-      {/* Event Poster at the very top of the ticket (full uncropped aspect ratio) */}
-      {settings.posterUrl && (
-        <div className="w-full bg-emerald-950 border-b border-emerald-800/40 overflow-hidden">
-          <img
-            src={resolveImageUrl(settings.posterUrl)}
-            alt="Event Poster"
-            className="w-full h-auto max-h-64 object-contain mx-auto block"
-          />
-        </div>
-      )}
+      <img
+        src={resolveImageUrl(settings.ticketTemplateUrl)}
+        alt="Event Ticket Template"
+        className="w-full h-auto block"
+      />
 
-      {/* Top Emerald Header */}
-      <div className="bg-gradient-to-r from-emerald-900 via-emerald-800 to-emerald-900 text-white p-5 sm:p-6 relative overflow-hidden">
-        {/* Subtle decorative circles */}
-        <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-emerald-500/10 pointer-events-none blur-xl"></div>
-        <div className="absolute -left-8 -bottom-8 w-28 h-28 rounded-full bg-emerald-400/10 pointer-events-none blur-lg"></div>
-
-        <div className="flex items-center justify-between mb-3 relative z-10">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center p-1 border border-white/20">
-              {settings.logoUrl ? (
-                <img
-                  src={resolveImageUrl(settings.logoUrl)}
-                  alt="Event Logo"
-                  className="w-full h-full object-contain"
-                />
-              ) : (
-                <span className="font-extrabold text-sm tracking-wider text-emerald-200">SSF</span>
-              )}
-            </div>
-            <div>
-              <span className="text-[10px] tracking-widest uppercase font-semibold text-emerald-300 block">
-                {settings.sectorName || 'SSF PUTHUR SECTOR'}
-              </span>
-              <span className="text-xs text-white/90 font-medium">OFFICIAL ENTRY PASS</span>
-            </div>
-          </div>
-
-          <span
-            className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wide uppercase shadow-sm ${
-              candidate.attended
-                ? 'bg-blue-500/20 text-blue-200 border border-blue-400/30'
-                : 'bg-emerald-400/20 text-emerald-200 border border-emerald-400/40'
-            }`}
-          >
-            <ShieldCheck className="w-3 h-3 mr-1 inline" />
-            {candidate.attended ? 'VERIFIED' : 'CONFIRMED'}
-          </span>
-        </div>
-
-        {/* Event Title */}
-        <h3 className="text-base sm:text-lg font-bold text-white leading-snug line-clamp-2">
-          {settings.eventName || 'SSF PUTHUR SECTOR SAHITYOTSAV 2026'}
-        </h3>
-        <p className="text-xs text-emerald-200/90 mt-1 line-clamp-1 italic">
-          "{settings.eventTheme || 'Moral Revolution for Social Reformation'}"
-        </p>
+      {/* 1. Name */}
+      <div
+        style={{
+          position: 'absolute',
+          left: `${cfg.name.x}%`,
+          top: `${cfg.name.y}%`,
+          transform: getTransform(cfg.name.align),
+          fontSize: `${Math.max(8, cfg.name.fontSize * scale)}px`,
+          color: cfg.name.color,
+          fontWeight: cfg.name.fontWeight,
+          textAlign: cfg.name.align,
+          lineHeight: 1.15,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {candidate.name}
       </div>
 
-      {/* Candidate Profile Details */}
-      <div className="p-5 sm:p-6 bg-white space-y-4">
-        <div>
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-gray-400 block">
-            Delegate Name
-          </span>
-          <h4 className="text-lg sm:text-xl font-extrabold text-gray-900 tracking-tight">
-            {candidate.name}
-          </h4>
-        </div>
-
-        {/* Role field — shown only when present */}
-        {candidate.role && (
-          <div className="flex items-center space-x-2">
-            <Briefcase className="w-3.5 h-3.5 text-blue-600 flex-shrink-0" />
-            <div>
-              <span className="text-[10px] font-semibold uppercase text-gray-400 block">Role</span>
-              <span className="inline-block px-2.5 py-0.5 rounded-full bg-blue-50 border border-blue-200 text-blue-800 font-semibold text-xs">
-                {candidate.role}
-              </span>
-            </div>
-          </div>
-        )}
-
-        <div className="grid grid-cols-2 gap-3 text-xs">
-          <div className="bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-100">
-            <span className="text-[10px] font-semibold uppercase text-emerald-800/70 block">
-              Unit
-            </span>
-            <span className="font-bold text-emerald-900 text-sm">{candidate.unit}</span>
-          </div>
-
-          <div className="bg-gray-50 p-2.5 rounded-xl border border-gray-200">
-            <span className="text-[10px] font-semibold uppercase text-gray-500 block">
-              Mobile No
-            </span>
-            <span className="font-semibold text-gray-800 text-sm">{candidate.phone}</span>
-          </div>
-        </div>
-
-        {/* Venue, Date & Time info */}
-        <div className="pt-2 border-t border-gray-100 space-y-1.5 text-xs text-gray-600">
-          <div className="flex items-center">
-            <Calendar className="w-3.5 h-3.5 mr-2 text-emerald-700 flex-shrink-0" />
-            <span className="font-medium text-gray-800">{settings.eventDate || '15 Dec 2026'}</span>
-          </div>
-          <div className="flex items-center">
-            <Clock className="w-3.5 h-3.5 mr-2 text-emerald-700 flex-shrink-0" />
-            <span>{settings.eventTime || '09:00 AM - 05:00 PM'}</span>
-          </div>
-          <div className="flex items-start">
-            <MapPin className="w-3.5 h-3.5 mr-2 text-emerald-700 flex-shrink-0 mt-0.5" />
-            <span className="line-clamp-1">{settings.venue || 'Town Hall, Puthur'}</span>
-          </div>
-        </div>
+      {/* 2. Ticket Number */}
+      <div
+        style={{
+          position: 'absolute',
+          left: `${cfg.ticketId.x}%`,
+          top: `${cfg.ticketId.y}%`,
+          transform: getTransform(cfg.ticketId.align),
+          fontSize: `${Math.max(8, cfg.ticketId.fontSize * scale)}px`,
+          color: cfg.ticketId.color,
+          fontWeight: cfg.ticketId.fontWeight,
+          textAlign: cfg.ticketId.align,
+          lineHeight: 1.15,
+          whiteSpace: 'nowrap',
+        }}
+        className="font-mono"
+      >
+        {candidate.ticketId}
       </div>
 
-      {/* Perforated Tear-off line with Cutout Notches */}
-      <div className="relative flex items-center justify-between px-3 py-2 bg-emerald-50/40">
-        <div className="w-4 h-4 rounded-full bg-[#F8FAF9] -ml-5 shadow-inner"></div>
-        <div className="flex-1 border-t-2 border-dashed border-emerald-200 mx-2"></div>
-        <span className="text-[9px] font-mono tracking-widest text-emerald-800/70 uppercase">
-          SCAN AT ENTRY GATE
-        </span>
-        <div className="flex-1 border-t-2 border-dashed border-emerald-200 mx-2"></div>
-        <div className="w-4 h-4 rounded-full bg-[#F8FAF9] -mr-5 shadow-inner"></div>
+      {/* 3. Unit */}
+      <div
+        style={{
+          position: 'absolute',
+          left: `${cfg.unit.x}%`,
+          top: `${cfg.unit.y}%`,
+          transform: getTransform(cfg.unit.align),
+          fontSize: `${Math.max(8, cfg.unit.fontSize * scale)}px`,
+          color: cfg.unit.color,
+          fontWeight: cfg.unit.fontWeight,
+          textAlign: cfg.unit.align,
+          lineHeight: 1.15,
+          whiteSpace: 'nowrap',
+        }}
+      >
+        {candidate.unit}
       </div>
 
-      {/* Bottom QR Code & Ticket ID Section */}
-      <div className="p-5 sm:p-6 bg-gradient-to-b from-emerald-50/20 to-white flex flex-col sm:flex-row items-center justify-between gap-4">
-        {/* Ticket ID Box */}
-        <div className="text-center sm:text-left flex-1">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-gray-400 block">
-            Unique Ticket ID
-          </span>
-          <div className="inline-block mt-0.5 px-3 py-1 rounded-lg bg-emerald-900 text-emerald-200 font-mono font-bold text-sm sm:text-base tracking-widest shadow-inner">
-            {candidate.ticketId}
-          </div>
-          <p className="text-[10px] text-gray-500 mt-2">
-            Present this QR code or Ticket ID at the sector registration desk upon arrival.
-          </p>
-        </div>
-
-        {/* Crisp QR Code */}
-        <div className="p-2.5 bg-white rounded-2xl shadow-md border border-emerald-100 flex-shrink-0">
-          <QRCodeSVG
-            value={qrPayload}
-            size={110}
-            level="H"
-            includeMargin={false}
-            fgColor="#0F5132"
-          />
-        </div>
-      </div>
-
-      {/* Security watermark footer */}
-      <div className="bg-emerald-900 text-emerald-300 text-[9px] py-1.5 px-4 text-center tracking-wider uppercase font-semibold">
-        SSF Puthur Sector Verification System • Non-Transferable
+      {/* 4. QR Code */}
+      <div
+        style={{
+          position: 'absolute',
+          left: `${cfg.qr.x}%`,
+          top: `${cfg.qr.y}%`,
+          transform: 'translate(-50%, -50%)',
+          width: `${qrSizePx}px`,
+          height: `${qrSizePx}px`,
+        }}
+        className="bg-white p-1 rounded-lg shadow-sm"
+      >
+        <QRCodeSVG
+          value={qrPayload}
+          size={Math.max(20, qrSizePx - 8)}
+          level="H"
+          includeMargin={false}
+          fgColor="#0F5132"
+          className="w-full h-full"
+        />
       </div>
     </div>
   );

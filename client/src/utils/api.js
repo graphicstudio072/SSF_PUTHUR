@@ -63,6 +63,11 @@ export const apiUploadPoster = (file) => {
   formData.append('poster', file);
   return request('/settings/upload-poster', { method: 'POST', body: formData });
 };
+export const apiUploadTicketTemplate = (file) => {
+  const formData = new FormData();
+  formData.append('template', file);
+  return request('/settings/upload-ticket-template', { method: 'POST', body: formData });
+};
 
 // Units
 export const apiGetUnits = () => request('/units');

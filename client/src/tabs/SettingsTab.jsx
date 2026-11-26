@@ -33,6 +33,7 @@ export default function SettingsTab() {
     venue: settings.venue || '',
     sectorName: settings.sectorName || '',
     theme: settings.theme || 'white-green',
+    headingColor: settings.headingColor || '#111827',
     contactPhone: settings.contactPhone || '',
     contactEmail: settings.contactEmail || '',
   });
@@ -63,6 +64,7 @@ export default function SettingsTab() {
       venue: settings.venue || '',
       sectorName: settings.sectorName || '',
       theme: settings.theme || 'white-green',
+      headingColor: settings.headingColor || '#111827',
       contactPhone: settings.contactPhone || '',
       contactEmail: settings.contactEmail || '',
     });
@@ -495,6 +497,37 @@ export default function SettingsTab() {
               placeholder="e.g. Town Hall, Puthur, Dakshina Kannada"
               className="w-full px-3 py-2.5 bg-gray-50 border border-gray-300 rounded-xl focus:bg-white focus:ring-2 focus:ring-emerald-200 focus:border-emerald-600 outline-none"
             />
+          </div>
+
+          {/* Main Program Heading Color */}
+          <div className="sm:col-span-2">
+            <label className="block font-semibold text-gray-700 mb-1.5">
+              Main Program Heading Color
+            </label>
+            <div className="flex flex-wrap items-center gap-3 p-3 rounded-2xl border border-gray-200 bg-gray-50/70">
+              <input
+                type="color"
+                name="headingColor"
+                value={formData.headingColor || '#111827'}
+                onChange={handleChange}
+                className="w-10 h-10 rounded-xl border border-gray-300 cursor-pointer bg-white p-0.5"
+              />
+              <div className="flex-1 min-w-[140px]">
+                <span className="text-xs font-mono font-bold text-gray-800 uppercase block">
+                  {formData.headingColor || '#111827'}
+                </span>
+                <span className="text-[11px] text-gray-500">
+                  Applies to the main hero heading on the public registration page
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setFormData((prev) => ({ ...prev, headingColor: '#111827' }))}
+                className="px-3 py-1.5 bg-white hover:bg-gray-100 text-gray-700 border border-gray-300 rounded-xl text-[11px] font-semibold transition-colors"
+              >
+                Reset to Default
+              </button>
+            </div>
           </div>
 
           {/* Theme Palette Selection */}

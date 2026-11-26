@@ -11,5 +11,6 @@ router.get('/', settingController.getSettings);
 router.put('/', authMiddleware, settingController.updateSettings);
 router.post('/upload-logo', authMiddleware, upload.single('logo'), settingController.uploadLogo);
 router.post('/upload-poster', authMiddleware, upload.single('poster'), settingController.uploadPoster);
+router.post('/upload-ticket-template', authMiddleware, upload.single('template'), settingController.uploadTicketTemplate);
 
 module.exports = router;

@@ -14,6 +14,14 @@ export const defaultSettings = {
   logoUrl: '',
   posterUrl: '',
   theme: 'white-green',
+  headingColor: '#111827',
+  ticketTemplateUrl: '',
+  ticketTemplateConfig: {
+    qr: { x: 74, y: 58, size: 22 },
+    name: { x: 8, y: 42, fontSize: 28, color: '#111827', align: 'left', fontWeight: '700' },
+    ticketId: { x: 8, y: 54, fontSize: 20, color: '#0F5132', align: 'left', fontWeight: '700' },
+    unit: { x: 8, y: 65, fontSize: 20, color: '#374151', align: 'left', fontWeight: '600' },
+  },
   contactPhone: '+91 97400 00000',
   contactEmail: 'ssfputhursector@gmail.com',
 };
